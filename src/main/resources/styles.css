@@ -1,0 +1,19 @@
+
+.tile1 {
+    -fx-background-color: #FFEDC8;
+}
+
+.tile2 {
+    -fx-background-color: #9C5000;
+}
+
+.pane_selected {
+    -fx-background-color: #5F9EA0;
+    -fx-opacity: .5;
+}
+
+.goal_pane {
+    -fx-border-color: red;
+    -fx-border-style: solid;
+    -fx-border-width: 5px;
+}
