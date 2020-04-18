@@ -7,7 +7,7 @@
     -fx-background-color: #9C5000;
 }
 
-.pane_selected {
+.pane_emp {
     -fx-background-color: #5F9EA0;
     -fx-opacity: .5;
 }

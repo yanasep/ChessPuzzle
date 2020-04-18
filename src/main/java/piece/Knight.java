@@ -1,5 +1,7 @@
 package piece;
 
+import util.Position;
+
 public class Knight extends Piece {
 
     private static final Position[] steps = {
