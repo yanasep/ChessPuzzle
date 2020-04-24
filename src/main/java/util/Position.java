@@ -1,8 +1,11 @@
 package util;
 
+/**
+ * An immutable object to represent a position in two dimensional array.
+ */
 public class Position {
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
 
     public Position(int row, int col) {
         this.row = row;
@@ -38,6 +41,8 @@ public class Position {
      */
     @Override
     public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
         if (!(obj instanceof Position))
             return false;
         var p = (Position) obj;

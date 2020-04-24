@@ -14,3 +14,11 @@ You can store the high score table in a database, in a JSON file, or in an XML d
 Optionally, you can implement load/save game functionality.
 
 ![Chess Puzzle](chesspuzzle.png)
+
+---
+Resources copyright
+
+knight Icon made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com </a>
+
+king icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com </a>
+

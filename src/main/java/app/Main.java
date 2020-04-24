@@ -10,15 +10,16 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("/chess.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/chess.fxml"));
+        Parent root = loader.load();
+        Controller controller = loader.getController();
         primaryStage.setTitle("Chess Puzzle");
-        Scene scene = new Scene(root, 700, 700);
+        Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles.css");
         primaryStage.setScene(scene);
+        primaryStage.setOnHidden(e -> controller.onExit());
         primaryStage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    public static void main(String[] args) { launch(args); }
 }

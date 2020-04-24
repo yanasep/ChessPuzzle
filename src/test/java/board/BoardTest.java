@@ -5,8 +5,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import org.junit.jupiter.api.Test;
-import piece.King;
 import piece.Piece;
+import piece.PieceType;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BoardTest {
@@ -23,7 +24,7 @@ public class BoardTest {
         });
 
         str = "";
-        piece.set(new King(1,1));
+        piece.set(new Piece(PieceType.KING, 1,1));
         assertEquals("changed", str);
     }
 }
