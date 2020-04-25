@@ -19,7 +19,6 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import com.google.gson.Gson;
 
-import score.Scorer;
 import util.JsonIO;
 import util.Position;
 
@@ -50,7 +49,7 @@ public class Controller {
     @FXML
     private Label timeLabel;
     @FXML
-    private Label stepLabel;
+    private Label moveLabel;
 
     private final StringProperty playerName = new SimpleStringProperty();
 
@@ -80,29 +79,30 @@ public class Controller {
             }
         }
         tiles[Board.GOAL_POS.getRow()][Board.GOAL_POS.getCol()].getStyleClass().add("goal_pane");
-        var king = createImageView("/images/king.png");
-        var knight = createImageView("/images/knight.png");
+        var kingImg = createImageView("/images/king.png");
+        var knightImg = createImageView("/images/knight.png");
         var kingTile = tiles[Board.KING_INIT_POS.getRow()][Board.KING_INIT_POS.getCol()];
         var knightTile = tiles[Board.KNIGHT_INIT_POS.getRow()][Board.KNIGHT_INIT_POS.getCol()];
-        kingTile.getChildren().add(king);
-        knightTile.getChildren().add(knight);
+        kingTile.getChildren().add(kingImg);
+        knightTile.getChildren().add(knightImg);
         kingTile.setCursor(Cursor.HAND);
         knightTile.setCursor(Cursor.HAND);
 
         msg.textProperty().bind(board.messageProperty());
 
         board.nextPositionsProperty().addListener((obs, oldVal, newVal) -> updateNextPositions(oldVal, newVal));
+        // bind positions of the king and knight
         board.getKing().positionProperty().addListener((obs, oldVal, newVal) -> {
             var prevTile = tiles[oldVal.getRow()][oldVal.getCol()];
             var newTile = tiles[newVal.getRow()][newVal.getCol()];
-            newTile.getChildren().add(king);
+            newTile.getChildren().add(kingImg);
             prevTile.setCursor(Cursor.DEFAULT);
             newTile.setCursor(Cursor.HAND);
         });
         board.getKnight().positionProperty().addListener((obs, oldVal, newVal) -> {
             var prevTile = tiles[oldVal.getRow()][oldVal.getCol()];
             var newTile = tiles[newVal.getRow()][newVal.getCol()];
-            newTile.getChildren().add(knight);
+            newTile.getChildren().add(knightImg);
             prevTile.setCursor(Cursor.DEFAULT);
             newTile.setCursor(Cursor.HAND);
         });
@@ -114,10 +114,15 @@ public class Controller {
         startPromptPane.setVisible(true);
         Platform.runLater(()->nameField.requestFocus());
 
-        timeLabel.textProperty().bind(board.getScorer().elapsedProperty().asString("%1$tM:%1$tS"));
-        stepLabel.textProperty().bind(board.getScorer().stepProperty().asString());
+        timeLabel.textProperty().bind(board.getScorer().timeProperty().asString("%1$tM:%1$tS"));
+        moveLabel.textProperty().bind(board.getScorer().moveProperty().asString());
     }
 
+    /**
+     * Returns a imageView which fits the size of the grid tile.
+     * @param path Path of the image
+     * @return ImageView
+     */
     private ImageView createImageView(String path) {
         var img = new Image(getClass().getResourceAsStream(path));
         var view = new ImageView(img);
@@ -127,7 +132,7 @@ public class Controller {
     }
 
     /**
-     * Search and return the position of the specified pane
+     * Search and return the position of the specified pane in grid
      * @param pane Pane to be searched
      * @return Position of the pane
      */
@@ -142,7 +147,7 @@ public class Controller {
     }
 
     /**
-     * Update the displayed panes color to show movable positions.
+     * Update the color of panes to show movable positions.
      * @param prevList Previous movable positions
      * @param newList New movable positions
      */
@@ -161,11 +166,6 @@ public class Controller {
         }
     }
 
-    @FXML
-    public void reset() {
-        board.play();
-    }
-
     private void initScoreTable() {
         // TODO: table height fit to 10 x cell_height
 
@@ -178,8 +178,8 @@ public class Controller {
         scoreCol.setComparator(scoreCol.getComparator().reversed());
         scoreTable.getSortOrder().add(scoreCol);
 
+        // automatically put line number
         numCol.setCellValueFactory(x -> new ReadOnlyObjectWrapper<>(x.getValue()));
-
         numCol.setCellFactory(new Callback<>() {
             @Override
             public TableCell<ScoreRow, ScoreRow> call(TableColumn<ScoreRow, ScoreRow> x) {
@@ -197,12 +197,12 @@ public class Controller {
             }
         });
 
+        // load scores if present
         try {
             var list = JsonIO.readJsonStream(getClass().getResourceAsStream("/score.json"));
             for (var item : list) scoreTable.getItems().add(item);
             scoreTable.sort();
         } catch (IOException | NullPointerException e) {
-//            e.printStackTrace();
             System.out.println("score file not found");
         }
     }
@@ -215,6 +215,9 @@ public class Controller {
             scoreTable.getItems().remove(size - 1);
     }
 
+    /**
+     * Model of data to be stored in score file
+     */
     public class ScoreRow {
         private final String name;
         private final int score;
@@ -234,6 +237,11 @@ public class Controller {
     }
 
     @FXML
+    public void reset() {
+        board.play();
+    }
+
+    @FXML
     public void onPlayButtonPressed(ActionEvent e) {
         startPromptPane.setVisible(false);
         board.play();
@@ -241,7 +249,6 @@ public class Controller {
 
     @FXML
     public void onNewGameButtonPressed(ActionEvent e) {
-//        board.play();
         endPromptPane.setVisible(false);
         startPromptPane.setVisible(true);
         nameField.requestFocus();

@@ -10,6 +10,11 @@ import score.Scorer;
 import util.Position;
 import java.util.List;
 
+/**
+ * Board of the chess puzzle.
+ *
+ * Initialized with a king and a knight at the initial position.
+ */
 public class Board {
     public static final int ROW_SIZE = 8;
     public static final int COL_SIZE = 8;
@@ -78,7 +83,7 @@ public class Board {
         selectedPiece.set(null);
         piece.setPosition(position);
         updateState();
-        scorer.step();
+        scorer.addMove();
     }
 
     private void updateNextPositions() {
@@ -106,7 +111,7 @@ public class Board {
     }
 
     /**
-     * Returns true if selected piece is under attacked by other pieces.
+     * Returns true if selected piece is under attack by other pieces.
      * @return True if movable
      */
     private boolean isMovable(Piece piece) {

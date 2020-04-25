@@ -10,7 +10,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- *
+ * Piece holds pieceType and observable current position.
+ * This object calculates next possible moves of the type
+ * relative to the current position.
  */
 public class Piece {
 

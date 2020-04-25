@@ -202,7 +202,7 @@
       </GridPane>
       <Label text="Time :" GridPane.columnIndex="10" GridPane.rowIndex="1" />
       <Label fx:id="timeLabel" alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="106.0" text="Label" textAlignment="RIGHT" GridPane.columnIndex="10" GridPane.rowIndex="1" />
-      <Label text="Steps :" GridPane.columnIndex="10" GridPane.rowIndex="2" />
-      <Label fx:id="stepLabel" alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="106.0" text="Label" textAlignment="RIGHT" GridPane.columnIndex="10" GridPane.rowIndex="2" />
+      <Label text="Moves :" GridPane.columnIndex="10" GridPane.rowIndex="2" />
+      <Label fx:id="moveLabel" alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="106.0" text="Label" textAlignment="RIGHT" GridPane.columnIndex="10" GridPane.rowIndex="2" />
     </children>
 </GridPane>
