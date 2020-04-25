@@ -19,12 +19,17 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import com.google.gson.Gson;
 
+import piece.Piece;
+import piece.PieceType;
 import util.JsonIO;
 import util.Position;
 
 import java.io.*;
 import java.util.List;
 
+/**
+ * Gets the click event and manipulates board.
+ */
 public class Controller {
     @FXML
     private Label msg;
@@ -51,15 +56,40 @@ public class Controller {
     @FXML
     private Label moveLabel;
 
-    private final StringProperty playerName = new SimpleStringProperty();
-
     private Pane[][] tiles;
     private final Board board = new Board();
 
-    private final Gson gson = new Gson();
-
+    /**
+     * Initialize the components on launch.
+     */
     public void initialize() {
+        initTiles();
 
+        // set pieces
+        var pieceList = board.getPieceList();
+        for (var p : pieceList)
+            initPiece(p);
+
+        initScoreTable();
+
+        // set bindings
+        board.nextPositionsProperty().addListener((obs, oldVal, newVal) -> updateNextPositions(oldVal, newVal));
+        board.stateProperty().addListener((obs, old, newVal) -> onStateChanged(newVal));
+        playBtn.disableProperty().bind(nameField.textProperty().isEmpty());
+
+        msg.textProperty().bind(board.messageProperty());
+        playerNameLabel.textProperty().bind(nameField.textProperty());
+        timeLabel.textProperty().bind(board.getScorer().timeProperty().asString("%1$tM:%1$tS"));
+        moveLabel.textProperty().bind(board.getScorer().moveProperty().asString());
+
+        startPromptPane.setVisible(true);
+        Platform.runLater(() -> nameField.requestFocus());
+    }
+
+    /**
+     * Creates grid tiles and add event handler to each tile.
+     */
+    private void initTiles() {
         tiles = new StackPane[Board.ROW_SIZE][Board.COL_SIZE];
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
@@ -72,54 +102,18 @@ public class Controller {
                     pane.getStyleClass().add("tile2");
 
                 pane.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                    var p = (Pane)e.getSource();
+                    var p = (Pane) e.getSource();
                     var pos = searchPanesPosition(p);
                     board.select(pos);
                 });
             }
         }
         tiles[Board.GOAL_POS.getRow()][Board.GOAL_POS.getCol()].getStyleClass().add("goal_pane");
-        var kingImg = createImageView("/images/king.png");
-        var knightImg = createImageView("/images/knight.png");
-        var kingTile = tiles[Board.KING_INIT_POS.getRow()][Board.KING_INIT_POS.getCol()];
-        var knightTile = tiles[Board.KNIGHT_INIT_POS.getRow()][Board.KNIGHT_INIT_POS.getCol()];
-        kingTile.getChildren().add(kingImg);
-        knightTile.getChildren().add(knightImg);
-        kingTile.setCursor(Cursor.HAND);
-        knightTile.setCursor(Cursor.HAND);
-
-        msg.textProperty().bind(board.messageProperty());
-
-        board.nextPositionsProperty().addListener((obs, oldVal, newVal) -> updateNextPositions(oldVal, newVal));
-        // bind positions of the king and knight
-        board.getKing().positionProperty().addListener((obs, oldVal, newVal) -> {
-            var prevTile = tiles[oldVal.getRow()][oldVal.getCol()];
-            var newTile = tiles[newVal.getRow()][newVal.getCol()];
-            newTile.getChildren().add(kingImg);
-            prevTile.setCursor(Cursor.DEFAULT);
-            newTile.setCursor(Cursor.HAND);
-        });
-        board.getKnight().positionProperty().addListener((obs, oldVal, newVal) -> {
-            var prevTile = tiles[oldVal.getRow()][oldVal.getCol()];
-            var newTile = tiles[newVal.getRow()][newVal.getCol()];
-            newTile.getChildren().add(knightImg);
-            prevTile.setCursor(Cursor.DEFAULT);
-            newTile.setCursor(Cursor.HAND);
-        });
-        initScoreTable();
-        playBtn.disableProperty().bind(nameField.textProperty().isEmpty());
-        playerName.bind(nameField.textProperty());
-        playerNameLabel.textProperty().bind(playerName);
-        board.stateProperty().addListener((obs, old, newVal) -> onStateChanged(newVal));
-        startPromptPane.setVisible(true);
-        Platform.runLater(()->nameField.requestFocus());
-
-        timeLabel.textProperty().bind(board.getScorer().timeProperty().asString("%1$tM:%1$tS"));
-        moveLabel.textProperty().bind(board.getScorer().moveProperty().asString());
     }
 
     /**
      * Returns a imageView which fits the size of the grid tile.
+     *
      * @param path Path of the image
      * @return ImageView
      */
@@ -132,7 +126,27 @@ public class Controller {
     }
 
     /**
+     * Initialize gui component of piece and add event listener.
+     * @param piece
+     */
+    private void initPiece(Piece piece) {
+        var imgPath = (piece.getType() == PieceType.KING) ? "/images/king.png" : "/images/knight.png";
+        var view = createImageView(imgPath);
+        var tile = tiles[piece.getPosition().getRow()][piece.getPosition().getCol()];
+        tile.getChildren().add(view);
+        tile.setCursor(Cursor.HAND);
+        piece.positionProperty().addListener((obs, oldVal, newVal) -> {
+            var prevTile = tiles[oldVal.getRow()][oldVal.getCol()];
+            var newTile = tiles[newVal.getRow()][newVal.getCol()];
+            newTile.getChildren().add(view);
+            prevTile.setCursor(Cursor.DEFAULT);
+            newTile.setCursor(Cursor.HAND);
+        });
+    }
+
+    /**
      * Search and return the position of the specified pane in grid
+     *
      * @param pane Pane to be searched
      * @return Position of the pane
      */
@@ -148,8 +162,9 @@ public class Controller {
 
     /**
      * Update the color of panes to show movable positions.
+     *
      * @param prevList Previous movable positions
-     * @param newList New movable positions
+     * @param newList  New movable positions
      */
     private void updateNextPositions(List<Position> prevList, List<Position> newList) {
         if (prevList != null) {
@@ -167,7 +182,6 @@ public class Controller {
     }
 
     private void initScoreTable() {
-        // TODO: table height fit to 10 x cell_height
 
         var nameCol = new TableColumn<ScoreRow, String>("Name");
         var scoreCol = new TableColumn<ScoreRow, Integer>("Score");
@@ -207,7 +221,12 @@ public class Controller {
         }
     }
 
-    private void addScore(String name, int score) {
+    /**
+     * Add new record to the score table.
+     * @param name Player name
+     * @param score Score
+     */
+    private void addScoreRow(String name, int score) {
         scoreTable.getItems().add(new ScoreRow(name, score));
         scoreTable.sort();
         int size = scoreTable.getItems().size();
@@ -254,6 +273,10 @@ public class Controller {
         nameField.requestFocus();
     }
 
+    /**
+     * Change GUI on state change.
+     * @param newState
+     */
     public void onStateChanged(Board.State newState) {
         if (newState == Board.State.RUNNING)
             return;
@@ -262,9 +285,8 @@ public class Controller {
             board.end();
             int score = board.getScorer().getScore();
             endMsgLabel.setText("Congratulations! Your score is: " + score);
-            addScore(playerName.get(), score);
-        }
-        else {
+            addScoreRow(playerNameLabel.getText(), score);
+        } else {
             board.end();
             endMsgLabel.setText("Game Over!");
         }
