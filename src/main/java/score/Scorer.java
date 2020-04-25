@@ -1,4 +1,5 @@
 package score;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -10,9 +11,9 @@ import javafx.util.Duration;
 
 /**
  * Provides scoring.
- *
+ * <p>
  * Call start() to start scoring, addMove() after each moves, and end() to end scoring.
- *
+ * <p>
  * Time and number of moves are observable.
  */
 public class Scorer {
@@ -20,6 +21,9 @@ public class Scorer {
     private final IntegerProperty numOfMoves = new SimpleIntegerProperty();
     private final Timeline clock;
 
+    /**
+     * Creates a new scorer.
+     */
     public Scorer() {
         clock = new Timeline(new KeyFrame(Duration.ZERO, e -> {
             time.set(time.get() + 1000);
@@ -52,6 +56,7 @@ public class Scorer {
 
     /**
      * Returns score at the time and of the number of moves.
+     *
      * @return
      */
     public int getScore() {
@@ -61,6 +66,7 @@ public class Scorer {
     public LongProperty timeProperty() {
         return time;
     }
+
     public IntegerProperty moveProperty() {
         return numOfMoves;
     }

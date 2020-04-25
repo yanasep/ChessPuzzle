@@ -8,27 +8,33 @@ import piece.Piece;
 import piece.PieceType;
 import score.Scorer;
 import util.Position;
-import java.util.List;
+
+import java.util.*;
 
 /**
  * Board of the chess puzzle.
+ * <p>
+ * Initialized with a king and a knight.
  *
- * Initialized with a king and a knight at the initial position.
+ * Override protected methods to change rules of the puzzle.
+ *
+ * Pieces are reused and not recreated on each play.
  */
 public class Board {
     public static final int ROW_SIZE = 8;
     public static final int COL_SIZE = 8;
     public static final Position GOAL_POS = new Position(0, 6);
-    public static final Position KING_INIT_POS = new Position(2, 1);
-    public static final Position KNIGHT_INIT_POS = new Position(2, 2);
 
-    private final Piece king = new Piece(PieceType.KING, KING_INIT_POS.getRow(),KING_INIT_POS.getCol());
-    private final Piece knight = new Piece(PieceType.KNIGHT, KNIGHT_INIT_POS.getRow(),KNIGHT_INIT_POS.getRow());
-    private final List<Piece> pieceList;
+    protected static final List<Piece> initialPieces = List.of(
+            new Piece(PieceType.KING, 2, 1),
+            new Piece(PieceType.KNIGHT, 2, 2)
+    );
+
     private final ObjectProperty<Piece> selectedPiece = new SimpleObjectProperty<>();
     private final ObjectProperty<List<Position>> nextPositions = new SimpleObjectProperty<>();
     private final StringProperty message = new SimpleStringProperty();
     private final Scorer scorer = new Scorer();
+    private final List<Piece> pieceList;
 
     public enum State {
         RUNNING, OVER, GOAL
@@ -36,24 +42,49 @@ public class Board {
 
     private final ObjectProperty<State> state = new SimpleObjectProperty<>();
 
+    /**
+     * Creates a new board.
+     */
     public Board() {
-        pieceList = List.of(king, knight);
+        pieceList = new ArrayList<>(initialPieces.size());
+        for (var p : initialPieces)
+            pieceList.add(new Piece(p.getType(), p.getPosition().getRow(), p.getPosition().getCol()));
+
         selectedPiece.addListener((obs, oldVal, newVal) -> {
             if (newVal == null) message.set("");
             else message.set(newVal.getType() + " selected");
         });
-        selectedPiece.addListener((observable, oldVal, newVal) -> updateNextPositions());
+        selectedPiece.addListener((observable, oldVal, newVal) -> updateNextPositions(newVal));
     }
 
+    /**
+     * Starts new game.
+     */
     public void play() {
-        king.setPosition(new Position(KING_INIT_POS.getRow(),KING_INIT_POS.getCol()));
-        knight.setPosition(new Position(KNIGHT_INIT_POS.getRow(),KNIGHT_INIT_POS.getRow()));
+        // push all pieces to a map
+        Map<PieceType, LinkedList<Piece>> map = new HashMap<>();
+        for (var p : pieceList) {
+            map.computeIfAbsent(p.getType(), k -> new LinkedList<>());
+            map.get(p.getType()).add(p);
+        }
+        pieceList.clear();
+        // set pieces
+        for (var p : initialPieces) {
+            var piece = map.get(p.getType()).poll();
+            assert piece != null;
+            piece.setPosition(p.getPosition());
+            pieceList.add(piece);
+        }
+
         state.set(State.RUNNING);
         nextPositions.set(List.of());
         selectedPiece.set(null);
         scorer.start();
     }
 
+    /**
+     * Ends the puzzle and finalize the score.
+     */
     public void end() {
         scorer.end();
     }
@@ -73,7 +104,7 @@ public class Board {
         if (piece.getPosition().equals(position))
             return;
 
-        // deselect if selected pane is not in movable positions
+        // deselect if selected position is not in possible moves
         if (!nextPositions.get().contains(position)) {
             selectedPiece.set(null);
             return;
@@ -81,13 +112,60 @@ public class Board {
 
         // move
         selectedPiece.set(null);
-        piece.setPosition(position);
+        move(piece, position);
         updateState();
         scorer.addMove();
     }
 
-    private void updateNextPositions() {
-        var piece = selectedPiece.get();
+    /**
+     * Move a piece to the specified position.
+     * @param piece Piece to move
+     * @param position Position where piece move to
+     */
+    protected void move(Piece piece, Position position) {
+        piece.setPosition(position);
+    }
+
+    /**
+     * Returns list of next possible positions of the specified piece.
+     * @param piece Current piece selection. Cannot be null.
+     * @return List of next possible positions.
+     */
+    protected List<Position> getNextMoves(Piece piece) {
+        var moves = piece.getNextMoves();
+        for (var p : pieceList)
+            moves.remove(p.getPosition());
+
+        return moves;
+    }
+
+    /**
+     * Returns true if selected piece is under attack by other pieces.
+     *
+     * @return True if movable
+     */
+    protected boolean isMovable(Piece piece) {
+        for (var p : pieceList) {
+            if (p == piece) continue;
+            if (p.getNextMoves().contains(piece.getPosition()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Update the current state of the game.
+     */
+    protected void updateState() {
+        if (pieceList.stream().anyMatch(p -> p.getPosition().equals(GOAL_POS))) {
+            state.set(State.GOAL);
+            scorer.end();
+        } else if (pieceList.stream().noneMatch(this::isMovable)) {
+            state.set(State.OVER);
+        }
+    }
+
+    private void updateNextPositions(Piece piece) {
 
         if (piece == null) {
             nextPositions.set(List.of());
@@ -99,46 +177,15 @@ public class Board {
             return;
         }
 
-        var prev = nextPositions;
-        var newList = piece.getNextMoves();
-        for (var p : pieceList)
-            newList.remove(p.getPosition());
+        var moves = getNextMoves(piece);
+        nextPositions.set(moves);
 
-        nextPositions.set(newList);
-
-        if (newList.size() == 0)
+        if (moves.size() == 0)
             message.set(selectedPiece.get().getType() + " is not movable");
     }
 
-    /**
-     * Returns true if selected piece is under attack by other pieces.
-     * @return True if movable
-     */
-    private boolean isMovable(Piece piece) {
-        for (var p : pieceList) {
-            if (p == piece) continue;
-            if (p.getNextMoves().contains(piece.getPosition()))
-                return true;
-        }
-        return false;
-    }
-
-    private void updateState() {
-        if (pieceList.stream().anyMatch(p -> p.getPosition().equals(GOAL_POS))) {
-            state.set(State.GOAL);
-            scorer.end();
-        }
-        else if (pieceList.stream().noneMatch(this::isMovable)) {
-            state.set(State.OVER);
-        }
-    }
-
-    public Piece getKing() {
-        return king;
-    }
-
-    public Piece getKnight() {
-        return knight;
+    public List<Piece> getPieceList() {
+        return pieceList;
     }
 
     public StringProperty messageProperty() {
