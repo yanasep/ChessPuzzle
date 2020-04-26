@@ -60,7 +60,11 @@ public class Scorer {
      * @return
      */
     public int getScore() {
-        return 1000 - ((int) time.get() >> 7) - numOfMoves.get() * 10;
+        return calculate(numOfMoves.get(), time.get());
+    }
+
+    protected static int calculate(int moves, long time) {
+        return 1000 - ((int) time >> 7) - moves * 50;
     }
 
     public LongProperty timeProperty() {

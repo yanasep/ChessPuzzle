@@ -3,8 +3,6 @@ package app;
 import board.Board;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
@@ -17,12 +15,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
-import com.google.gson.Gson;
 
 import piece.Piece;
 import piece.PieceType;
 import util.JsonIO;
-import util.Position;
+import geom.Position;
 
 import java.io.*;
 import java.util.List;
@@ -213,7 +210,7 @@ public class Controller {
 
         // load scores if present
         try {
-            var list = JsonIO.readJsonStream(getClass().getResourceAsStream("/score.json"));
+            var list = JsonIO.readJsonStream(getClass().getResourceAsStream("/score.json"), ScoreRow.class);
             for (var item : list) scoreTable.getItems().add(item);
             scoreTable.sort();
         } catch (IOException | NullPointerException e) {

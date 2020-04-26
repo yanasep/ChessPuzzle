@@ -3,7 +3,7 @@ package piece;
 import board.Board;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import util.Position;
+import geom.Position;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * This object calculates next possible moves of the type
  * relative to the current position.
  */
-public class Piece {
+public final class Piece {
 
     private final ObjectProperty<Position> position = new SimpleObjectProperty<>();
     private final PieceType type;
@@ -31,7 +31,8 @@ public class Piece {
     }
 
     /**
-     * Returns the piece's next movable positions by applying steps to the current position.
+     * Returns the piece's next movable positions on the board
+     * relative to the current position.
      *
      * @return Next movable positions
      */
@@ -60,5 +61,4 @@ public class Piece {
     public ObjectProperty<Position> positionProperty() {
         return position;
     }
-
 }

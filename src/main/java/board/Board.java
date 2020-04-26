@@ -7,7 +7,7 @@ import javafx.beans.property.StringProperty;
 import piece.Piece;
 import piece.PieceType;
 import score.Scorer;
-import util.Position;
+import geom.Position;
 
 import java.util.*;
 
@@ -89,6 +89,12 @@ public class Board {
         scorer.end();
     }
 
+    /**
+     * Selects the specified position on the board.
+     * The consequences are either piece selection, deselection,
+     * or piece movement.
+     * @param position
+     */
     public void select(Position position) {
         for (var piece : pieceList) {
             if (position.equals(piece.getPosition()))
@@ -131,7 +137,7 @@ public class Board {
      * @param piece Current piece selection. Cannot be null.
      * @return List of next possible positions.
      */
-    protected List<Position> getNextMoves(Piece piece) {
+    protected List<Position> getNextMoves(Piece piece, List<Piece> pieceList) {
         var moves = piece.getNextMoves();
         for (var p : pieceList)
             moves.remove(p.getPosition());
@@ -177,7 +183,7 @@ public class Board {
             return;
         }
 
-        var moves = getNextMoves(piece);
+        var moves = getNextMoves(piece, pieceList);
         nextPositions.set(moves);
 
         if (moves.size() == 0)

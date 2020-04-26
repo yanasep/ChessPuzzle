@@ -13,12 +13,12 @@ import java.util.List;
 public class JsonIO {
     private static final Gson gson = new Gson();
     
-    public static List<Controller.ScoreRow> readJsonStream(InputStream in) throws IOException {
+    public static <T> List<T> readJsonStream(InputStream in, Class<T> clazz) throws IOException {
         var reader = new JsonReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        List<Controller.ScoreRow> list = new ArrayList<>();
+        List<T> list = new ArrayList<>();
         reader.beginArray();
         while (reader.hasNext()) {
-            Controller.ScoreRow item = gson.fromJson(reader, Controller.ScoreRow.class);
+            T item = gson.fromJson(reader, clazz);
             list.add(item);
         }
         reader.endArray();
@@ -26,12 +26,12 @@ public class JsonIO {
         return list;
     }
 
-    public static void writeJsonStream(OutputStream out, List<Controller.ScoreRow> list) throws IOException {
+    public static void writeJsonStream(OutputStream out, List<?> list) throws IOException {
         JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
         writer.setIndent("  ");
         writer.beginArray();
         for (var item : list) {
-            gson.toJson(item, Controller.ScoreRow.class, writer);
+            gson.toJson(item, item.getClass(), writer);
         }
         writer.endArray();
         writer.close();

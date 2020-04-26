@@ -1,6 +1,6 @@
 package piece;
 
-import util.Position;
+import geom.Position;
 
 import java.util.List;
 
