@@ -124,7 +124,7 @@ public class Controller {
 
     /**
      * Initialize gui component of piece and add event listener.
-     * @param piece
+     * @param piece Piece
      */
     private void initPiece(Piece piece) {
         var imgPath = (piece.getType() == PieceType.KING) ? "/images/king.png" : "/images/knight.png";
@@ -272,7 +272,7 @@ public class Controller {
 
     /**
      * Change GUI on state change.
-     * @param newState
+     * @param newState New state
      */
     public void onStateChanged(Board.State newState) {
         if (newState == Board.State.RUNNING)
