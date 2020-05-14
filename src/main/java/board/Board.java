@@ -93,7 +93,7 @@ public class Board {
      * Selects the specified position on the board.
      * The consequences are either piece selection, deselection,
      * or piece movement.
-     * @param position
+     * @param position Position to select
      */
     public void select(Position position) {
         for (var piece : pieceList) {
@@ -135,6 +135,7 @@ public class Board {
     /**
      * Returns list of next possible positions of the specified piece.
      * @param piece Current piece selection. Cannot be null.
+     * @param pieceList List of pieces on the board
      * @return List of next possible positions.
      */
     protected List<Position> getNextMoves(Piece piece, List<Piece> pieceList) {
@@ -147,7 +148,7 @@ public class Board {
 
     /**
      * Returns true if selected piece is under attack by other pieces.
-     *
+     * @param piece Piece to test
      * @return True if movable
      */
     protected boolean isMovable(Piece piece) {

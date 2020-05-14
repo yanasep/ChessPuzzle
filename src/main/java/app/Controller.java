@@ -24,6 +24,9 @@ import geom.Position;
 import java.io.*;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Gets the click event and manipulates board.
  */
@@ -55,6 +58,8 @@ public class Controller {
 
     private Pane[][] tiles;
     private final Board board = new Board();
+
+    private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     /**
      * Initialize the components on launch.

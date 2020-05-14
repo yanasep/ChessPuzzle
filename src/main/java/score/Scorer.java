@@ -56,8 +56,7 @@ public class Scorer {
 
     /**
      * Returns score at the time and of the number of moves.
-     *
-     * @return
+     * @return calculated score
      */
     public int getScore() {
         return calculate(numOfMoves.get(), time.get());
