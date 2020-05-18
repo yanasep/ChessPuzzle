@@ -1,4 +1,4 @@
-package geom;
+package state;
 
 /**
  * An immutable object to represent a position in two dimensional array.

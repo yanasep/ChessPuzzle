@@ -1,6 +1,6 @@
 package app;
 
-import board.Board;
+import state.Board;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.event.ActionEvent;
@@ -16,10 +16,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
-import piece.Piece;
-import piece.PieceType;
+import state.Piece;
+import state.PieceType;
 import util.JsonIO;
-import geom.Position;
+import state.Position;
 
 import java.io.*;
 import java.util.List;

@@ -1,7 +1,7 @@
 package app;
 
-import board.Board;
-import geom.Position;
+import state.Board;
+import state.Position;
 import javafx.scene.layout.Pane;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

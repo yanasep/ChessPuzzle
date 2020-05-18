@@ -1,9 +1,7 @@
-package piece;
+package state;
 
-import board.Board;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import geom.Position;
 
 import java.util.*;
 import java.util.function.Predicate;

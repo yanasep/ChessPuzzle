@@ -1,4 +1,4 @@
-package score;
+package state;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;

@@ -1,16 +1,14 @@
-package piece;
+package state;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
-import geom.Position;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 public class PieceTest {
     @Test
-    public void kingNextMovesTest() {
+    public void testKingNextMoves() {
         var king = new Piece(PieceType.KING, 5, 7);
         var actual = king.getNextMoves();
         var expected = Arrays.asList(
@@ -26,7 +24,7 @@ public class PieceTest {
     }
 
     @Test
-    public void knightNextMovesTest() {
+    public void testKnightNextMoves() {
         var knight = new Piece(PieceType.KNIGHT, 5, 6);
         var actual = knight.getNextMoves();
         var expected = Arrays.asList(

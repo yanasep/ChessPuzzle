@@ -1,6 +1,4 @@
-package piece;
-
-import geom.Position;
+package state;
 
 import java.util.List;
 

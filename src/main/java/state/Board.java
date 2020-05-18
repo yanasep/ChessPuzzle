@@ -1,13 +1,9 @@
-package board;
+package state;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import piece.Piece;
-import piece.PieceType;
-import score.Scorer;
-import geom.Position;
 
 import java.util.*;
 

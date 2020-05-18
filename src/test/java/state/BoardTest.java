@@ -1,9 +1,6 @@
-package board;
+package state;
 
 import org.junit.jupiter.api.Test;
-import piece.Piece;
-import piece.PieceType;
-import geom.Position;
 
 import java.util.List;
 
@@ -13,7 +10,7 @@ public class BoardTest {
     Board board = new Board();
 
     @Test
-    public void playTest() throws NoSuchFieldException, IllegalAccessException {
+    public void testPlay() throws NoSuchFieldException, IllegalAccessException {
         board.play();
         var list = board.getPieceList();
         var expectedList = (List<Piece>)board.getClass().getDeclaredField("initialPieces").get(board);
@@ -26,7 +23,7 @@ public class BoardTest {
     }
 
     @Test
-    public void selectTest() {
+    public void testSelect() {
         board.play();
         Piece piece = null;
         var list = board.getPieceList();
@@ -43,7 +40,7 @@ public class BoardTest {
     }
 
     @Test
-    public void moveTest() {
+    public void testMove() {
         var piece = board.getPieceList().get(0);
         var pos = new Position(0,0);
         board.move(piece, pos);
@@ -51,7 +48,7 @@ public class BoardTest {
     }
 
     @Test
-    public void getKingNextMovesTest() {
+    public void testGetKingNextMoves() {
         var king = new Piece(PieceType.KING, 0,0);
         var other = new Piece(PieceType.KING, 0,1);
         var other2 = new Piece(PieceType.KNIGHT, 1,0);
@@ -62,7 +59,7 @@ public class BoardTest {
     }
 
     @Test
-    public void getKnightNextMovesTest() {
+    public void testGetKnightNextMoves() {
         var knight = new Piece(PieceType.KNIGHT, 0,0);
         var other = new Piece(PieceType.KING, 0,1);
         var other2 = new Piece(PieceType.KNIGHT, 2,1);
