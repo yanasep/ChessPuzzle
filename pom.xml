@@ -191,6 +191,11 @@
                 <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>3.0.0-M4</version>
             </plugin>
+            <plugin>
+                <groupId>org.openclover</groupId>
+                <artifactId>clover-maven-plugin</artifactId>
+                <version>${openclover.version}</version>
+            </plugin>
         </plugins>
     </reporting>
     <profiles>
