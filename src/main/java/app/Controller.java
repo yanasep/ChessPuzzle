@@ -59,6 +59,7 @@ public class Controller {
 
     private Pane[][] tiles;
     private final Board board = new Board();
+    private final File scoreFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "-score.json");
 
     /**
      * Initialize the components on launch.
@@ -213,9 +214,9 @@ public class Controller {
         });
 
         // load scores if present
-        try {
+        try (var is = new FileInputStream(scoreFile)) {
             log.info("Score file found. Adding entries to the table");
-            var list = JsonIO.readJsonStream(getClass().getResourceAsStream("/score.json"), ScoreRow.class);
+            var list = JsonIO.readJsonStream(is, ScoreRow.class);
             log.debug("Adding {} items", list.size());
             for (var item : list) scoreTable.getItems().add(item);
             scoreTable.sort();
@@ -309,12 +310,10 @@ public class Controller {
      * Save score on exit.
      */
     public void onExit() {
-        String filename = "score.json";
-        File f = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + filename);
+        log.info("Saving scores to {}...", scoreFile.getName());
         try {
-            log.info("Saving scores to {}...", filename);
-            f.createNewFile();
-            JsonIO.writeJsonStream(new FileOutputStream(f), scoreTable.getItems());
+            scoreFile.createNewFile();
+            JsonIO.writeJsonStream(new FileOutputStream(scoreFile), scoreTable.getItems());
         } catch (IOException e) {
             log.error("Failed.");
             e.printStackTrace();
