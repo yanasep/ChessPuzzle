@@ -29,8 +29,7 @@ public final class Piece {
     }
 
     /**
-     * Returns the piece's next movable positions on the board
-     * relative to the current position.
+     * Returns the piece's next movable positions.
      *
      * @return Next movable positions
      */
@@ -38,24 +37,37 @@ public final class Piece {
 
         if (position.get() == null) return null;
 
-        Predicate<Position> isOnBoard = p ->
-                p.getRow() >= 0 && p.getRow() < Board.ROW_SIZE && p.getCol() >= 0 && p.getCol() < Board.COL_SIZE;
-
-        return type.getMoves().stream().map(m -> position.get().movedBy(m)).filter(isOnBoard).collect(Collectors.toList());
+        return type.getMoves().stream().map(position.get()::movedBy).collect(Collectors.toList());
     }
 
+    /**
+     * Gets type of piece.
+     * @return piece type
+     */
     public PieceType getType() {
         return type;
     }
 
+    /**
+     * Gets current position of piece.
+     * @return current position
+     */
     public Position getPosition() {
         return position.get();
     }
 
+    /**
+     * Sets the position of pieces.
+     * @param position destination
+     */
     public void setPosition(Position position) {
         this.position.set(position);
     }
 
+    /**
+     * Gets the position property.
+     * @return position property
+     */
     public ObjectProperty<Position> positionProperty() {
         return position;
     }

@@ -1,5 +1,8 @@
 package app;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import state.Board;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -24,12 +27,10 @@ import state.Position;
 import java.io.*;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Gets the click event and manipulates board.
  */
+@Slf4j
 public class Controller {
     @FXML
     private Label msg;
@@ -58,8 +59,6 @@ public class Controller {
 
     private Pane[][] tiles;
     private final Board board = new Board();
-
-    private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
     /**
      * Initialize the components on launch.
@@ -147,7 +146,7 @@ public class Controller {
     }
 
     /**
-     * Search and return the position of the specified pane in grid
+     * Search and return the position of the specified pane in grid.
      *
      * @param pane Pane to be searched
      * @return Position of the pane
@@ -172,19 +171,19 @@ public class Controller {
         if (prevList != null) {
             for (var p : prevList) {
                 var tile = tiles[p.getRow()][p.getCol()];
-                tile.getStyleClass().remove("pane_emp");
+                tile.getStyleClass().remove("pane_highlight");
                 tile.setCursor(Cursor.DEFAULT);
             }
         }
         for (var p : newList) {
             var tile = tiles[p.getRow()][p.getCol()];
-            tile.getStyleClass().add("pane_emp");
+            tile.getStyleClass().add("pane_highlight");
             tile.setCursor(Cursor.HAND);
         }
     }
 
     private void initScoreTable() {
-
+        log.info("Initializing score table");
         var nameCol = new TableColumn<ScoreRow, String>("Name");
         var scoreCol = new TableColumn<ScoreRow, Integer>("Score");
         scoreTable.getColumns().addAll(nameCol, scoreCol);
@@ -215,10 +214,13 @@ public class Controller {
 
         // load scores if present
         try {
+            log.info("Score file found. Adding entries to the table");
             var list = JsonIO.readJsonStream(getClass().getResourceAsStream("/score.json"), ScoreRow.class);
+            log.debug("Adding {} items", list.size());
             for (var item : list) scoreTable.getItems().add(item);
             scoreTable.sort();
         } catch (IOException | NullPointerException e) {
+            log.trace("No score file found");
             System.out.println("score file not found");
         }
     }
@@ -229,6 +231,7 @@ public class Controller {
      * @param score Score
      */
     private void addScoreRow(String name, int score) {
+        log.debug("Player: {}, score: {}", name, score);
         scoreTable.getItems().add(new ScoreRow(name, score));
         scoreTable.sort();
         int size = scoreTable.getItems().size();
@@ -237,39 +240,43 @@ public class Controller {
     }
 
     /**
-     * Model of data to be stored in score file
+     * Structure of data to be stored in score file.
      */
+    @Data
+    @AllArgsConstructor
     public class ScoreRow {
         private final String name;
         private final int score;
-
-        public ScoreRow(String name, int score) {
-            this.name = name;
-            this.score = score;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getScore() {
-            return score;
-        }
     }
 
+    /**
+     * Reset button action. Restarts game.
+     */
     @FXML
     public void reset() {
+        log.info("Restarting game...");
         board.play();
     }
 
+    /**
+     * Play button action. Starts playing game.
+     * @param e
+     */
     @FXML
     public void onPlayButtonPressed(ActionEvent e) {
+        log.info("Starting game...");
         startPromptPane.setVisible(false);
         board.play();
     }
 
+    /**
+     * New Game button action. Shows start prompt.
+     * @param e
+     */
     @FXML
     public void onNewGameButtonPressed(ActionEvent e) {
+        log.debug("{} pressed", ((Button) e.getSource()).getText());
+        log.info("Showing new game prompt");
         endPromptPane.setVisible(false);
         startPromptPane.setVisible(true);
         nameField.requestFocus();
@@ -284,11 +291,13 @@ public class Controller {
             return;
 
         if (newState == Board.State.GOAL) {
+            log.info("Goal");
             board.end();
             int score = board.getScorer().getScore();
             endMsgLabel.setText("Congratulations! Your score is: " + score);
             addScoreRow(playerNameLabel.getText(), score);
         } else {
+            log.info("Game over");
             board.end();
             endMsgLabel.setText("Game Over!");
         }
@@ -300,14 +309,17 @@ public class Controller {
      * Save score on exit.
      */
     public void onExit() {
-
-        File f = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + "score.json");
+        String filename = "score.json";
+        File f = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath() + filename);
         try {
+            log.info("Saving scores to {}...", filename);
             f.createNewFile();
             JsonIO.writeJsonStream(new FileOutputStream(f), scoreTable.getItems());
         } catch (IOException e) {
+            log.error("Failed.");
             e.printStackTrace();
         }
+        log.info("Exiting app...");
     }
 
 }

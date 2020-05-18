@@ -63,13 +63,21 @@ public class Scorer {
     }
 
     protected static int calculate(int moves, long time) {
-        return 1000 - ((int) time >> 7) - moves * 50;
+        return 2000 - ((int) time >> 7) - moves * 50;
     }
 
+    /**
+     * Returns time property.
+     * @return time property
+     */
     public LongProperty timeProperty() {
         return time;
     }
 
+    /**
+     * Returns number of moves property.
+     * @return move property
+     */
     public IntegerProperty moveProperty() {
         return numOfMoves;
     }

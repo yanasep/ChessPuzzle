@@ -7,6 +7,9 @@ import java.util.List;
  * Each type holds unmodifiable list of possible moves.
  */
 public enum PieceType {
+    /**
+     * King piece.
+     */
     KING(new Position[]{
             new Position(1, 0), // top
             new Position(1, -1), // top-left
@@ -17,6 +20,9 @@ public enum PieceType {
             new Position(-1, -1), // bottom-left
             new Position(-1, 1) // bottom-right
     }),
+    /**
+     * Knight piece.
+     */
     KNIGHT(new Position[]{
             new Position(2, 1), // upper top-left
             new Position(1, 2), // lower top-left
@@ -34,6 +40,10 @@ public enum PieceType {
         this.moves = List.of(moves);
     }
 
+    /**
+     * Returns list of relative positions the piece type can move to.
+     * @return next positions of piece
+     */
     public List<Position> getMoves() {
         return moves;
     }

@@ -7,6 +7,11 @@ public class Position implements Comparable<Position> {
     private final int row;
     private final int col;
 
+    /**
+     * Creates a new Position object with the specified row and column.
+     * @param row
+     * @param col
+     */
     public Position(int row, int col) {
         this.row = row;
         this.col = col;
@@ -22,14 +27,28 @@ public class Position implements Comparable<Position> {
         return movedBy(offset.row, offset.col);
     }
 
+    /**
+     * Returns the position of current moved by specified offset.
+     * @param row Row offset
+     * @param col Col offset
+     * @return Calculated new position
+     */
     public Position movedBy(int row, int col) {
         return new Position(this.row + row, this.col + col);
     }
 
+    /**
+     * Gets row index.
+     * @return row
+     */
     public int getRow() {
         return row;
     }
 
+    /**
+     * Gets column index.
+     * @return col
+     */
     public int getCol() {
         return col;
     }

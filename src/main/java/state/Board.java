@@ -4,8 +4,11 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Board of the chess puzzle.
@@ -16,9 +19,19 @@ import java.util.*;
  *
  * Pieces are reused and not recreated on each play.
  */
+@Slf4j
 public class Board {
+    /**
+     * Row size of the board.
+     */
     public static final int ROW_SIZE = 8;
+    /**
+     * Column size of the board.
+     */
     public static final int COL_SIZE = 8;
+    /**
+     * Goal position.
+     */
     public static final Position GOAL_POS = new Position(0, 6);
 
     protected static final List<Piece> initialPieces = List.of(
@@ -32,8 +45,22 @@ public class Board {
     private final Scorer scorer = new Scorer();
     private final List<Piece> pieceList;
 
+    /**
+     * Game state.
+     */
     public enum State {
-        RUNNING, OVER, GOAL
+        /**
+         * game is running.
+         */
+        RUNNING,
+        /**
+         * game is over.
+         */
+        OVER,
+        /**
+         * puzzle is solved.
+         */
+        GOAL
     }
 
     private final ObjectProperty<State> state = new SimpleObjectProperty<>();
@@ -48,7 +75,7 @@ public class Board {
 
         selectedPiece.addListener((obs, oldVal, newVal) -> {
             if (newVal == null) message.set("");
-            else message.set(newVal.getType() + " selected");
+            else { message.set(newVal.getType() + " selected"); log.info("{} selected", newVal.getType()); }
         });
         selectedPiece.addListener((observable, oldVal, newVal) -> updateNextPositions(newVal));
     }
@@ -106,7 +133,7 @@ public class Board {
         if (piece.getPosition().equals(position))
             return;
 
-        // deselect if selected position is not in possible moves
+        // deselect if selected position is not in next moves
         if (!nextPositions.get().contains(position)) {
             selectedPiece.set(null);
             return;
@@ -125,17 +152,25 @@ public class Board {
      * @param position Position where piece move to
      */
     protected void move(Piece piece, Position position) {
+        log.info("Moving {}", piece.getType());
         piece.setPosition(position);
     }
 
     /**
      * Returns list of next possible positions of the specified piece.
+     * A piece cannot move to other pieces' position.
      * @param piece Current piece selection. Cannot be null.
      * @param pieceList List of pieces on the board
-     * @return List of next possible positions.
+     * @return List of next possible positions of the piece.
      */
     protected List<Position> getNextMoves(Piece piece, List<Piece> pieceList) {
         var moves = piece.getNextMoves();
+
+        Predicate<Position> isOnBoard = p ->
+                p.getRow() >= 0 && p.getRow() < Board.ROW_SIZE && p.getCol() >= 0 && p.getCol() < Board.COL_SIZE;
+
+        moves = moves.stream().filter(isOnBoard).collect(Collectors.toList());
+
         for (var p : pieceList)
             moves.remove(p.getPosition());
 
@@ -185,24 +220,46 @@ public class Board {
 
         if (moves.size() == 0)
             message.set(selectedPiece.get().getType() + " is not movable");
+        else
+            log.debug("Next positions: {}", nextPositions.get());
     }
 
+    /**
+     * Gets list of pieces on the board.
+     * @return list of pieces
+     */
     public List<Piece> getPieceList() {
         return pieceList;
     }
 
+    /**
+     * Gets message property.
+     * @return message property
+     */
     public StringProperty messageProperty() {
         return message;
     }
 
+    /**
+     * Gets next positions property of selected piece.
+     * @return next positions property
+     */
     public ObjectProperty<List<Position>> nextPositionsProperty() {
         return nextPositions;
     }
 
+    /**
+     * Gets game state property.
+     * @return state property
+     */
     public ObjectProperty<State> stateProperty() {
         return state;
     }
 
+    /**
+     * Gets scorer object.
+     * @return scorer
+     */
     public Scorer getScorer() {
         return scorer;
     }

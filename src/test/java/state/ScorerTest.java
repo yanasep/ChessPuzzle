@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ScorerText {
+public class ScorerTest {
     @Test
     public void testNormalScoring() {
         int score1 = Scorer.calculate(15, 50000);

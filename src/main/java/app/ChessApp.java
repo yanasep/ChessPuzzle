@@ -6,6 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * JavaFX Application of ChessPuzzle.
+ */
 public class ChessApp extends Application {
 
     @Override
